@@ -92,6 +92,59 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    from util import Queue
+    
+    Node = problem.getStartState()
+
+    #Check if initial state is goal state
+    if(problem.isGoalState(Node)):
+        return [Node]
+    else:
+        #setting up the environment that the search strategy will use
+        #Initialize fringe to be the starting unvisited node
+        fringe = Queue()
+        fringe.push(problem.getStartState())
+        
+        #Setting up path and reached lists
+        path = []
+        path.append(problem.getStartState())
+        reached = []
+
+        listOfPaths = [] 
+        #List of lists that will hold the path to every node generated
+        #Any tume a node gets generated that leads to a new path, it will
+        #get added to this list of paths as a new path that the agent can take
+        #The last path [-1] should in theory be the final path with the
+        #goal state being the last generated node
+        
+        while not fringe.isEmpty():
+            currentNode = fringe.pop()
+            if currentNode not in reached:
+                reached.append(currentNode)
+
+                """
+                Placing comment here for visibility of what the getSuccessors returns
+
+                As noted in search.py:
+                For a given state, this should return a list of triples,
+                (successor, action, stepCost), where 'successor' is a
+                successor to the current state, 'action' is the action
+                required to get there, and 'stepCost' is the incremental
+                cost of expanding to that successor
+                """
+
+                successors = problem.getSuccessors(currentNode)  
+                #(successor, action, stepCost)
+                #[0]       , [1]   , [2]
+                for successor,action,stepCost in successors:
+                    if problem.isGoalState(successor):
+                        return listOfPaths[-1].append(successor)
+                    fringe.push(successor)
+                    listOfPaths.append(path + [successor])
+                path = listOfPaths[-1]
+                
+    return []
+            
     util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
