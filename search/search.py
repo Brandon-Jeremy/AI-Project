@@ -94,7 +94,7 @@ def depthFirstSearch(problem: SearchProblem):
     fringe.push(Node)
     path = []
     visited = []
-    listOfPaths = Queue()
+    listOfPaths = Stack()
         
     while not fringe.isEmpty():
         node = fringe.pop()
