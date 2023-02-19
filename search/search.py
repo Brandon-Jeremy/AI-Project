@@ -99,7 +99,7 @@ def depthFirstSearch(problem: SearchProblem):
     while not fringe.isEmpty():
         node = fringe.pop()
         if problem.isGoalState(node):
-            return node
+            return path
         for successor,action,cost in problem.getSuccessors(node):
             if problem.isGoalState(successor):
                 correctPath = path + [action]
@@ -111,7 +111,7 @@ def depthFirstSearch(problem: SearchProblem):
                 listOfPaths.push(newPath)
         path = listOfPaths.pop()
         
-    return path
+    return []
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
