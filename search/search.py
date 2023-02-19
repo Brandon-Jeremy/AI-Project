@@ -110,8 +110,8 @@ def breadthFirstSearch(problem: SearchProblem):
         path.append(problem.getStartState())
         reached = []
 
-        listOfPaths = [] 
-        #List of lists that will hold the path to every node generated
+        listOfPaths = Queue()
+        #Queue of lists that will hold the path to every node generated
         #Any tume a node gets generated that leads to a new path, it will
         #get added to this list of paths as a new path that the agent can take
         #The last path [-1] should in theory be the final path with the
@@ -138,11 +138,14 @@ def breadthFirstSearch(problem: SearchProblem):
                 #[0]       , [1]   , [2]
                 for successor,action,stepCost in successors:
                     if problem.isGoalState(successor):
-                        return listOfPaths[-1].append(successor)
+                        correctPath = listOfPaths.pop()+[successor]
+                        return correctPath
                     fringe.push(successor)
-                    listOfPaths.append(path + [successor])
-                path = listOfPaths[-1]
-                
+                    newPath = listOfPaths.pop()+[successor]
+                    listOfPaths.push(newPath)
+                #path = listOfPaths.pop()
+
+    #For failure            
     return []
             
     util.raiseNotDefined()
