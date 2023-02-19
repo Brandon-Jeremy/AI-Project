@@ -98,7 +98,8 @@ def breadthFirstSearch(problem: SearchProblem):
 
     #Check if initial state is goal state
     if(problem.isGoalState(Node)):
-        return [Node]
+        #Return no action since current node is goal so pacman doesn't need to move
+        return []
     else:
         #setting up the environment that the search strategy will use
         #Initialize fringe to be the starting unvisited node
@@ -107,8 +108,8 @@ def breadthFirstSearch(problem: SearchProblem):
         
         #Setting up path and reached lists
         path = []
-        path.append(problem.getStartState())
         reached = []
+        reached.append(problem.getStartState())
 
         listOfPaths = Queue()
         #Queue of lists that will hold the path to every node generated
@@ -118,36 +119,19 @@ def breadthFirstSearch(problem: SearchProblem):
         #goal state being the last generated node
         
         while not fringe.isEmpty():
-            currentNode = fringe.pop()
-            if currentNode not in reached:
-                reached.append(currentNode)
-
-                """
-                Placing comment here for visibility of what the getSuccessors returns
-
-                As noted in search.py:
-                For a given state, this should return a list of triples,
-                (successor, action, stepCost), where 'successor' is a
-                successor to the current state, 'action' is the action
-                required to get there, and 'stepCost' is the incremental
-                cost of expanding to that successor
-                """
-
-                successors = problem.getSuccessors(currentNode)  
-                #(successor, action, stepCost)
-                #[0]       , [1]   , [2]
-                for successor,action,stepCost in successors:
-                    if problem.isGoalState(successor):
-                        correctPath = listOfPaths.pop()+[successor]
-                        return correctPath
+            node = fringe.pop()
+            for successor,action,cost in problem.getSuccessors(node):
+                if problem.isGoalState(successor):
+                    correctPath = path + [action]
+                    return correctPath
+                if successor not in reached:
+                    reached.append(successor)
                     fringe.push(successor)
-                    newPath = listOfPaths.pop()+[successor]
+                    newPath = path + [action]
                     listOfPaths.push(newPath)
-                #path = listOfPaths.pop()
+            path = listOfPaths.pop()
 
-    #For failure            
     return []
-            
     util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
