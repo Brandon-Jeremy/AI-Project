@@ -132,7 +132,9 @@ def breadthFirstSearch(problem: SearchProblem):
             path = listOfPaths.pop()
 
     return []
+    #In event of failure, return nothing
     util.raiseNotDefined()
+    #Code also works for the 8-tile problem
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
