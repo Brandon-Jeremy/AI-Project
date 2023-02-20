@@ -176,6 +176,37 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    #Pseudocode source: Artificial Intelligence: a Modern Approach, EBook, Global Edition
+    #Page 91
+
+    #Setting up the environment for A*
+
+    from util import PriorityQueue
+    from util import Queue
+
+    Node = problem.getStartState()
+    frontier = PriorityQueue() # ←a priority queue ordered by f , with node as an element
+    frontier.push(Node, 0+nullHeuristic(Node,problem))
+    #Why 0+nullHeuristic(Node,problem)? 
+    #A* works based off f(n)=g(n)+h(n) && g(n) at the root = 0
+    reached = [] # ←a lookup table, with one entry with key problem.INITIAL and value node
+    reached.append(Node)
+    path = []
+
+    while not frontier.isEmpty():
+        #While the frontier is not empty
+        Node = frontier.pop()
+        #Pop a node from the frontier (this node will have the least cost)
+        if problem.isGoalState(Node):
+            return path
+        for child,action,cost in problem.getSuccessors(Node):
+            childPath = path + [action]
+            childCost = problem.getCostOfActions(childPath) + nullHeuristic(child,problem)
+            if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(path)):
+                path = childPath
+                frontier.push(child, childCost)
+    
+    return []
     util.raiseNotDefined()
 
 
