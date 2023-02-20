@@ -186,25 +186,35 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     Node = problem.getStartState()
     frontier = PriorityQueue() # ←a priority queue ordered by f , with node as an element
-    frontier.push(Node, 0+nullHeuristic(Node,problem))
+    frontier.push(Node, 0+heuristic(Node,problem))
     #Why 0+nullHeuristic(Node,problem)? 
     #A* works based off f(n)=g(n)+h(n) && g(n) at the root = 0
     reached = [] # ←a lookup table, with one entry with key problem.INITIAL and value node
     reached.append(Node)
     path = []
 
+    listOfPaths = PriorityQueue()
+    #I need a way to store all the paths taken by every expanded node. So I will use another priorityQ
+    #That will store the paths instead of a node state
+    listOfPaths.push(path,0+heuristic(Node,problem))
+
     while not frontier.isEmpty():
         #While the frontier is not empty
         Node = frontier.pop()
+        currentPath = listOfPaths.pop()
         #Pop a node from the frontier (this node will have the least cost)
+        #Pop its respective path
         if problem.isGoalState(Node):
             return path
-        for child,action,cost in problem.getSuccessors(Node):
-            childPath = path + [action]
-            childCost = problem.getCostOfActions(childPath) + nullHeuristic(child,problem)
-            if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(path)):
-                path = childPath
-                frontier.push(child, childCost)
+        if Node not in reached:
+            visited.append(Node)
+            for child,action,cost in problem.getSuccessors(Node):
+                childPath = currentPath + [action]
+                childCost = problem.getCostOfActions(childPath) + nullHeuristic(child,problem)
+                if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(path)):
+                    path = childPath
+                    frontier.push(child, childCost)
+                    listOfPaths.push(childPath, childCost)
     
     return []
     util.raiseNotDefined()
