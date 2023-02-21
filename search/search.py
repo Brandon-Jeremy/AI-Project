@@ -209,7 +209,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
             reached.append(Node)
             for child,action,cost in problem.getSuccessors(Node):
                 childPath = currentPath + [action]
-                childCost = problem.getCostOfActions(childPath) + nullHeuristic(child,problem)
+                childCost = problem.getCostOfActions(childPath) + heuristic(child,problem)
                 if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(currentPath)):
                     frontier.push(child, childCost)
                     listOfPaths.push(childPath, childCost)
