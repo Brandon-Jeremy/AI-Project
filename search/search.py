@@ -190,7 +190,6 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     #Why 0+nullHeuristic(Node,problem)? 
     #A* works based off f(n)=g(n)+h(n) && g(n) at the root = 0
     reached = [] # ←a lookup table, with one entry with key problem.INITIAL and value node
-    reached.append(Node)
     path = []
 
     listOfPaths = PriorityQueue()
@@ -205,14 +204,13 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         #Pop a node from the frontier (this node will have the least cost)
         #Pop its respective path
         if problem.isGoalState(Node):
-            return path
+            return currentPath
         if Node not in reached:
-            visited.append(Node)
+            reached.append(Node)
             for child,action,cost in problem.getSuccessors(Node):
                 childPath = currentPath + [action]
                 childCost = problem.getCostOfActions(childPath) + nullHeuristic(child,problem)
-                if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(path)):
-                    path = childPath
+                if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(currentPath)):
                     frontier.push(child, childCost)
                     listOfPaths.push(childPath, childCost)
     
