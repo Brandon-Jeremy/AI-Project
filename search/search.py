@@ -88,18 +88,17 @@ def depthFirstSearch(problem: SearchProblem):
     """
     "*** YOUR CODE HERE ***"
     from util import Stack
-    from util import Queue
     Node = problem.getStartState()
     fringe = Stack()
     fringe.push(Node)
     path = []
-    visited = []
-    listOfPaths = Stack()
+    visited = [] #holds the nodes we have already visited to prevent visitng them again
+    listOfPaths = Stack() #holds the paths taken to reach a certain node
         
     while not fringe.isEmpty():
         node = fringe.pop()
-        if problem.isGoalState(node):
-            return path
+        if problem.isGoalState(node): #checks if this is the goal state
+            return path #if yes it returns how to reached this goal state
         for successor,action,cost in problem.getSuccessors(node):
             if problem.isGoalState(successor):
                 correctPath = path + [action]
@@ -109,9 +108,9 @@ def depthFirstSearch(problem: SearchProblem):
                 fringe.push(successor)
                 newPath = path + [action]
                 listOfPaths.push(newPath)
-        path = listOfPaths.pop()
+        path = listOfPaths.pop() 
         
-    return []
+    return [] #return no action (failure)
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
@@ -164,6 +163,31 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    from util import PriorityQueue
+    from util import Queue
+
+    
+    frontier = PriorityQueue()
+    node = problem.getStartState() #a node with the initial state
+    
+    explored = [] # an empty set
+    path = []
+
+    listOfPaths = PriorityQueue()
+
+    while not problem.isGoalState(node):
+        if node not in explored:
+            explored.append(node)
+            for child,action,cost in problem.getSuccessors(node):
+                childPath = path + [action]
+                childCost = problem.getCostOfActions(childPath)
+                if child not in explored:
+                    frontier.push(child,childCost)
+                    listOfPaths.push(childPath,childCost)
+        node = frontier.pop()
+        path = listOfPaths.pop()
+    
+    return path
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
