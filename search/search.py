@@ -161,33 +161,37 @@ def breadthFirstSearch(problem: SearchProblem):
     #Code also works for the 8-tile problem
 
 def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    from util import PriorityQueue
-    from util import Queue
+    from util import PriorityQueue,Queue
 
-    
-    frontier = PriorityQueue()
-    node = problem.getStartState() #a node with the initial state
-    
-    explored = [] # an empty set
+    Node = problem.getStartState()
+    frontier = PriorityQueue() # ←a priority queue ordered by f , with node as an element
+    frontier.push(Node, 0)
+    reached = [] # ←a lookup table, with one entry with key problem.INITIAL and value node
     path = []
 
     listOfPaths = PriorityQueue()
+    #I need a way to store all the paths taken by every expanded node. So I will use another priorityQ
+    #That will store the paths instead of a node state
+    listOfPaths.push(path,0)
 
-    while not problem.isGoalState(node):
-        if node not in explored:
-            explored.append(node)
-            for child,action,cost in problem.getSuccessors(node):
-                childPath = path + [action]
+    while not frontier.isEmpty():
+        #While the frontier is not empty
+        Node = frontier.pop()
+        currentPath = listOfPaths.pop()
+        #Pop a node from the frontier (this node will have the least cost)
+        #Pop its respective path
+        if problem.isGoalState(Node):
+            return currentPath
+        if Node not in reached:
+            reached.append(Node)
+            for child,action,cost in problem.getSuccessors(Node):
+                childPath = currentPath + [action]
                 childCost = problem.getCostOfActions(childPath)
-                if child not in explored:
-                    frontier.push(child,childCost)
-                    listOfPaths.push(childPath,childCost)
-        node = frontier.pop()
-        path = listOfPaths.pop()
+                if (child not in reached) or (problem.getCostOfActions(childPath)<problem.getCostOfActions(currentPath)):
+                    frontier.push(child, childCost)
+                    listOfPaths.push(childPath, childCost)
     
-    return path
+    return []
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
