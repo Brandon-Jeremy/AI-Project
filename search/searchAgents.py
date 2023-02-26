@@ -299,6 +299,9 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        corners = [False for i in range(4)]
+        #False for every corner as none were hit in the starting state
+        return (self.startingPosition,corners)
         util.raiseNotDefined()
 
     def isGoalState(self, state: Any):
@@ -306,6 +309,22 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        # print("DEBUG")
+        # print("CORNERS: ")
+        # print(state[0])
+        # print(state[1])
+        counter = 0
+        currentpos = state[0]
+        if currentpos in self.corners:
+            for corner in self.corners:
+                if currentpos==corner:
+                    location = self.corners.index(corner)
+                    # print("LOCATION: ",location)
+                    if state[1].index(location)!=True:
+                        state[1][location] = True
+                        counter = counter + 1
+        # print("COUNTER: ",counter)
+        return counter == 4                   
         util.raiseNotDefined()
 
     def getSuccessors(self, state: Any):
@@ -320,6 +339,9 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        x = state[0][0]
+        y = state[0][1]
+        # print("x: ",type(state[0][0]))
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -329,6 +351,18 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            # x,y = currentPosition
+            dx, dy = Actions.directionToVector(action)
+            nextx,nexty = int(x+dx), int(y+dy)
+            hitswall = self.walls[nextx][nexty] #This is a boolean BJ
+            # print("HITSWALL: ",hitswall)
+            if hitswall == False:
+            #     #Valid action to take; add to possible successor
+            #     # Successors:  [((5, 4), 'South', 1), ((4, 5), 'West', 1)] BJ
+                ValidSuccessor = (nextx,nexty)
+                successor = (ValidSuccessor,action,1)
+                successors.append(successor)
+            
 
         self._expanded += 1 # DO NOT CHANGE
         return successors

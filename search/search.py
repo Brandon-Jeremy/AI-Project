@@ -100,6 +100,8 @@ def depthFirstSearch(problem: SearchProblem):
         if problem.isGoalState(node): #checks if this is the goal state
             return path #if yes it returns how to reached this goal state
         for successor,action,cost in problem.getSuccessors(node):
+            # print("Successors: ",problem.getSuccessors(node))
+            #SUCCESSOR: Successors:  [((5, 4), 'South', 1), ((4, 5), 'West', 1)] BJ
             if problem.isGoalState(successor):
                 correctPath = path + [action]
                 return correctPath
