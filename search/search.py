@@ -147,6 +147,7 @@ def breadthFirstSearch(problem: SearchProblem):
         while not fringe.isEmpty():
             node = fringe.pop()
             for successor,action,cost in problem.getSuccessors(node):
+                # print("BFS HERE SUCCESSOR: ",successor)
                 if problem.isGoalState(successor):
                     correctPath = path + [action]
                     return correctPath
