@@ -292,6 +292,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.visitedCorners = []
+        self.startingState = (self.startingPosition,self.visitedCorners)
 
     def getStartState(self):
         """
@@ -299,9 +301,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        corners = [False for i in range(4)]
-        #False for every corner as none were hit in the starting state
-        return (self.startingPosition,corners)
+        return self.startingState
         util.raiseNotDefined()
 
     def isGoalState(self, state: Any):
@@ -309,22 +309,16 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        # print("DEBUG")
-        # print("CORNERS: ")
-        # print(state[0])
-        # print(state[1])
-        counter = 0
-        currentpos = state[0]
-        if currentpos in self.corners:
-            for corner in self.corners:
-                if currentpos==corner:
-                    location = self.corners.index(corner)
-                    # print("LOCATION: ",location)
-                    if state[1].index(location)!=True:
-                        state[1][location] = True
-                        counter = counter + 1
-        # print("COUNTER: ",counter)
-        return counter == 4                   
+        currentPosition = state[0]
+        cornersList = state[1]
+
+        if currentPosition in self.corners:
+            #If our current position in a corner add it to the cornersList if it hasn't already been added
+            if currentPosition not in cornersList:
+                #if currentposition isn't in the cornerslist then add it
+                cornersList.append(currentPosition)
+
+        return len(cornersList)==4            
         util.raiseNotDefined()
 
     def getSuccessors(self, state: Any):
@@ -339,8 +333,6 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
-        x = state[0][0]
-        y = state[0][1]
         # print("x: ",type(state[0][0]))
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -352,16 +344,37 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             # x,y = currentPosition
+            x,y = state[0]
+            storeCorners = state[1]
             dx, dy = Actions.directionToVector(action)
-            nextx,nexty = int(x+dx), int(y+dy)
-            hitswall = self.walls[nextx][nexty] #This is a boolean BJ
-            # print("HITSWALL: ",hitswall)
-            if hitswall == False:
-            #     #Valid action to take; add to possible successor
-            #     # Successors:  [((5, 4), 'South', 1), ((4, 5), 'West', 1)] BJ
-                ValidSuccessor = (nextx,nexty)
-                successor = (ValidSuccessor,action,1)
-                successors.append(successor)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            # hitsWall is a boolean that returns True if a wall has been encountered
+
+            # Important:
+            # based off debug statements, the triplet successor, action, cost that is used in
+            # BFS, DFS, A*, or UCS. The successor is not only a set of coordinates but also a list of the corners
+            # ((6, 1), [(1, 1), (1, 6), (6, 6), (6, 1)])
+            # Retrieved from a debug print statement in BFS
+      
+            if not hitsWall:
+
+                successorCorners = storeCorners[:] #Every successor will have its own list of corners to add to the return
+                coordinates = (nextx,nexty) #These are the coordinates found on the left part of the debug statement
+
+                #Now we need to add the corners to the successorCorners if one of the coordinates leads to a corner
+                for corner in self.corners:
+                    #This loops to the real corners of the world
+                    #Now we check if one of the coordinates matches the corner position
+                    if coordinates == corner:
+                        #If it does: we want to add it to the list of corners for the successor if it hasn't been added already
+                        if coordinates not in successorCorners:
+                            #If they haven't been added, add them to the list of corners for each successor
+                            successorCorners.append(coordinates)
+                    #Now that we're done adding coordinates and to successors we need to match the format
+                    #the tuple of triplets of ((successors_coordinates, [list of corners]),action,cost=1)
+                    validsuccessor = ((coordinates,successorCorners),action,1)
+                    successors.append(validsuccessor)
             
 
         self._expanded += 1 # DO NOT CHANGE
