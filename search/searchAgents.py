@@ -524,7 +524,28 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    #the heuristic is the furthest dot from pacman, pacman will eat all the dots on its way to this furthest node
+    food_positions = foodGrid.asList() #foodGrid.asList() gives a list of food positions
+    if food_positions == []: #in case there is no food (foodGrid.asList() returned an empty list):
+        return 0
+    
+    distances = [] #list to store food distances
+    
+    for food_position in food_positions:
+        total_pos = position + food_position
+        # Compute the distance between the current position and each food position
+        # If the distance has been previously computed, get it using problem.heuristicInfo[total_pos]
+        if total_pos in problem.heuristicInfo:
+            distance = problem.heuristicInfo[total_pos]
+        # Otherwise, compute it using mazeDistance function and store it in the provided problem.heuristicInfo dictionary 
+        else:
+            distance = mazeDistance(position, food_position, problem.startingGameState)
+            problem.heuristicInfo[total_pos] = distance
+        distances.append(distance) #append distance to distances list
+
+    farthest_food_distance = max(distances)
+    return farthest_food_distance #return the max maze distance calculated previously as heuristic value
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
