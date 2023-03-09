@@ -423,12 +423,12 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     if not unvisited:
         return 0
     #################################################################
-    minDistance = float('inf')
+    maxDistance = float('-inf')
     for corner in unvisited:
         distance = util.manhattanDistance(currentPosition, corner)
-        if distance<minDistance:
-            minDistance = distance
-    return minDistance
+        if distance>maxDistance:
+            maxDistance = distance
+    return maxDistance
     
     return 0 # Default to trivial solution
 
