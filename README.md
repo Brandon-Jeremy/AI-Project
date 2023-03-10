@@ -1,6 +1,7 @@
 # AI-Project
 Phase 1
 Documentation:
+BY: Brandon J. Nader && Elie Hanna
 
 <h1>Q1 - DFS:</h1>
 The algorithm starts by setting up a stack called a fringe with the starting node as the only element. The algorithm then enters a loop that continues
@@ -30,7 +31,7 @@ To check the goalstate, we simply check the node that we are currently at and se
 To get successors, we follow the logic of the code provided to us and simpy check if the boolean of the .walls[][] returns true or not. If not, then the action is a valid one and we can return it as part of the successors. To do this we simply check if that successor is a corner and if so, append it to the list of corners for the successors. Finally return the successor.
 
 <h1>Q6 - cornersHeuristics:</h1>
-The corner heuristic simply uses the manhattanDistance from the util.py file in order to find the maxDistance. The reason max was chosen since it provides a closer approximation to the true cost.
+The corner heuristic simply uses the manhattanDistance from the util.py file in order to find the minDistance. The logic behind the code is that after checking the minimum distance we need to add the cost to the heuristic and remove the node from the list. The corners or nodes in the list that we loop through are the nodes that are not already visited as looping through visited nodes is counter intuitive. The first condition that we need to check is if the current position is already the goal in which we should return 0 so that the heuristic at the goal state is 0.
 
 <h1>Q7 - Eating All the Dots:</h1>
 The function foodHeuristic is used to estimate the cost to reach the goal state in the FoodSearchProblem. The goal of the FoodSearchProblem is
@@ -40,7 +41,7 @@ position to each food dot. If the distance from Pacman's current position to a f
 the problem.heuristicInfo dictionary. If not, the function computes the distance and stores it in the problem.heuristicInfo dictionary for future use.
 The estimated cost returned by this function is used by the A* search algorithm to guide the search towards the goal state.
 
-Q8) Suboptimal Search
+<h1>Q8 - Suboptimal Search:</h1>
 The function findPathToClosestDot finds the path to the closest dot (food pellet) from the current position of Pacman in a Pacman game. It takes in the current
 game state and extracts useful information like Pacman's starting position, the location of food pellets, and the walls in the game.
 It then creates an instance of the AnyFoodSearchProblem class using the current game state and uses Breadth First Search (BFS) to find the shortest

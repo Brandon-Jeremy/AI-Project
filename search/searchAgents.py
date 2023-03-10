@@ -413,6 +413,11 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+
+    #Check if is goalstate so our heuristic returns 0
+    if problem.isGoalState(state):
+        return 0
+
     currentPosition = state[0]
     visitedCorners = state[1]
 
@@ -423,12 +428,25 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     if not unvisited:
         return 0
     #################################################################
-    maxDistance = float('-inf')
-    for corner in unvisited:
-        distance = util.manhattanDistance(currentPosition, corner)
-        if distance>maxDistance:
-            maxDistance = distance
-    return maxDistance
+    # maxDistance = float('-inf')
+    # for corner in unvisited:
+    #     distance = util.manhattanDistance(currentPosition, corner)
+    #     if distance>maxDistance:
+    #         maxDistance = distance
+    # return maxDistance
+
+    cost = 0
+    while unvisited:
+        minDistance = float('inf')
+        for corner in unvisited:
+            distance = util.manhattanDistance(currentPosition, corner)
+            minDistance = min(distance, minDistance)
+        cost = cost + minDistance
+        currentPosition = corner
+        unvisited.remove(corner)
+
+    return cost
+
     
     return 0 # Default to trivial solution
 
