@@ -163,6 +163,52 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+        # Determine the action that maximizes the expected utility for Pacman
+        def max_utility(gameState, depth):
+            if gameState.isWin() or gameState.isLose() or (depth+1) == self.depth:
+                return self.evaluationFunction(gameState)
+            max_value = float('-inf')
+            actions = gameState.getLegalActions(0)
+            total_max_value = 0
+            num_actions = len(actions)
+            for action in actions:
+                successor_state = gameState.generateSuccessor(0, action)
+                max_value = max(max_value, min_utility(successor_state, (depth+1), 1))
+            return max_value
+
+        # Determine the minimum expected utility for the ghosts
+        def min_utility(gameState, depth, agent_index):
+            if gameState.isWin() or gameState.isLose():
+                return self.evaluationFunction(gameState)
+            actions = gameState.getLegalActions(agent_index)
+            total_expected_value = 0
+            num_actions = len(actions)
+            for action in actions:
+                successor_state = gameState.generateSuccessor(agent_index, action)
+                if agent_index == (gameState.getNumAgents() - 1):
+                    expected_value = max_utility(successor_state, depth)
+                else:
+                    expected_value = min_utility(successor_state, depth, agent_index + 1)
+                total_expected_value += expected_value
+            if num_actions == 0:
+                return 0
+            return float(total_expected_value) / float(num_actions)
+
+        # Determine the action that maximizes the expected utility for Pacman at the root level
+        actions = gameState.getLegalActions(0)
+        current_score = float('-inf')
+        best_action = ''
+        for action in actions:
+            next_state = gameState.generateSuccessor(0, action)
+            # Call min_utility for the successors of the root node
+            score = min_utility(next_state, 0, 1)
+            # Choose the action with the maximum expected utility
+            if score > current_score:
+                best_action = action
+                current_score = score
+        return best_action
+
+
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState: GameState):
@@ -170,9 +216,15 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: Similar idea to phase 1 where manhattan distance is used as the heuristic for picking the closest food for the pacman to eat
     """
     "*** YOUR CODE HERE ***"
+    position = currentGameState.getPacmanPosition()
+    foods = currentGameState.getFood().asList()
+    closestFoodDis = min(manhattanDistance(position, food) for food in foods) if foods else 0.5
+    score = currentGameState.getScore()
+    evaluation = 1.0 / closestFoodDis + score
+    return evaluation
     util.raiseNotDefined()
 
 # Abbreviation
