@@ -180,57 +180,103 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             #List of pacman actions stored to loop through and check which would yield a better outcome
             for action in pacman_actions:
                 successor_state = gameState.generateSuccessor(0, action)
-                max_value = max(max_value, min_utility(successor_state, (depth+1), 1))
+                expected_value = min_utility(successor_state, depth+1, 1)
+                # Update max_value if the expected value is greater
+                max_value = max(max_value, expected_value)
             return max_value
 
         # Determine the minimum expected utility for the ghosts
-        def min_utility(gameState, depth, agent_index):
-            if gameState.isWin():
+        # def min_utility(gameState, depth, agent_index):
+        #     if gameState.isWin():
+        #         return newUtil(gameState)
+        #     if gameState.isLose():
+        #         return newUtil(gameState)
+        #     actions = gameState.getLegalActions(agent_index)
+        #     total_expected_value = 0
+        #     num_actions = len(actions)
+        #     for action in actions:
+        #         successor_state = gameState.generateSuccessor(agent_index, action)
+        #         if agent_index == (gameState.getNumAgents() - 1):
+        #             expected_value = max_utility(successor_state, depth)
+        #         else:
+        #             expected_value = min_utility(successor_state, depth, agent_index + 1)
+        #         total_expected_value += expected_value
+        #     if num_actions == 0:
+        #         return 0
+        #     return (total_expected_value+0.0) / (num_actions+0.0)
+        def min_utility(gameState, current_depth, current_agent):
+            # Base case: check if the game has ended
+            if gameState.isWin() or gameState.isLose():
                 return newUtil(gameState)
-            if gameState.isLose():
-                return newUtil(gameState)
-            actions = gameState.getLegalActions(agent_index)
+            
+            # Get a list of legal actions for the current ghost agent
+            ghost_actions = gameState.getLegalActions(current_agent)
+            
+            # Initialize total_expected_value to zero and get the number of legal actions
             total_expected_value = 0
-            num_actions = len(actions)
-            for action in actions:
-                successor_state = gameState.generateSuccessor(agent_index, action)
-                if agent_index == (gameState.getNumAgents() - 1):
-                    expected_value = max_utility(successor_state, depth)
+            num_actions = len(ghost_actions)
+            
+            # Loop through each action and calculate the expected utility for the successor state
+            for action in ghost_actions:
+                # Generate a successor state for the current action
+                successor_state = gameState.generateSuccessor(current_agent, action)
+                # Calculate the expected utility for the successor state recursively
+                if current_agent == gameState.getNumAgents() - 1:
+                    # If the current agent is the last ghost, calculate the maximum expected utility for Pac-Man
+                    expected_value = max_utility(successor_state, current_depth)
                 else:
-                    expected_value = min_utility(successor_state, depth, agent_index + 1)
+                    # Otherwise, calculate the minimum expected utility for the next ghost agent
+                    expected_value = min_utility(successor_state, current_depth, current_agent + 1)
+                # Add the expected value to the total expected value
                 total_expected_value += expected_value
+            
+            # If there are no legal actions, return zero
             if num_actions == 0:
                 return 0
-            return (total_expected_value+0.0) / (num_actions+0.0)
+            
+            # Calculate and return the average expected value
+            average_expected_value = total_expected_value / num_actions
+            return average_expected_value
 
         def newUtil(gameState):
             position = gameState.getPacmanPosition()
-            foods = gameState.getFood().asList()
-            closestFoodDis = float('inf')
-            if foods:
-                for food in foods:
-                    distance = manhattanDistance(position, food)
-                    if distance < closestFoodDis:
-                        closestFoodDis = distance
+            pellets = gameState.getFood().asList()
+            nearestPellet = float('inf')
+            if pellets:
+                for pellet in pellets:
+                    distance = manhattanDistance(position, pellet)
+                    if distance < nearestPellet:
+                        nearestPellet = distance
             else:
-                closestFoodDis = 0.5
+                # Value that goes here doesn't matter
+                nearestPellet = 5
             score = gameState.getScore()
-            evaluation = 1.0 / closestFoodDis + score
+            evaluation = 1.0 / nearestPellet + score
             return evaluation
 
-        # Determine the action that maximizes the expected utility for Pacman at the root level
+        # Get the legal actions for the root node
         actions = gameState.getLegalActions(0)
-        current_score = float('-inf')
-        best_action = ''
+
+        # Initialize variables for the best action and its expected utility
+        best_action = None
+        best_score = float('-inf')
+
+        # Evaluate each action and choose the one with the highest expected utility
         for action in actions:
-            next_state = gameState.generateSuccessor(0, action)
-            # Call min_utility for the successors of the root node
-            score = min_utility(next_state, 0, 1)
-            # Choose the action with the maximum expected utility
-            if score > current_score:
+            # Generate the successor state for the current action
+            successor_state = gameState.generateSuccessor(0, action)
+
+            # Compute the expected utility of the successor state using min_utility
+            score = min_utility(successor_state, 0, 1)
+
+            # Update the best action and its expected utility if necessary
+            if score > best_score:
                 best_action = action
-                current_score = score
+                best_score = score
+
+        # Return the best action
         return best_action
+
 
         util.raiseNotDefined()
 
