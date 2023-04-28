@@ -165,21 +165,30 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         # Determine the action that maximizes the expected utility for Pacman
         def max_utility(gameState, depth):
-            if gameState.isWin() or gameState.isLose() or (depth+1) == self.depth:
-                return self.evaluationFunction(gameState)
+            if gameState.isWin():
+                return newUtil(gameState)
+            if gameState.isLose():
+                return newUtil(gameState)
+            if (depth+1) == self.depth:
+                return newUtil(gameState)
+            #These conditions are used to check if the game is in its final stage 
+            #The game can conlcude in 3 different ways, either winning, losing or when the depth 
+            #is higher than the specified depth designated in the multiAgent code.
+
             max_value = float('-inf')
-            actions = gameState.getLegalActions(0)
-            total_max_value = 0
-            num_actions = len(actions)
-            for action in actions:
+            pacman_actions = gameState.getLegalActions(0)
+            #List of pacman actions stored to loop through and check which would yield a better outcome
+            for action in pacman_actions:
                 successor_state = gameState.generateSuccessor(0, action)
                 max_value = max(max_value, min_utility(successor_state, (depth+1), 1))
             return max_value
 
         # Determine the minimum expected utility for the ghosts
         def min_utility(gameState, depth, agent_index):
-            if gameState.isWin() or gameState.isLose():
-                return self.evaluationFunction(gameState)
+            if gameState.isWin():
+                return newUtil(gameState)
+            if gameState.isLose():
+                return newUtil(gameState)
             actions = gameState.getLegalActions(agent_index)
             total_expected_value = 0
             num_actions = len(actions)
@@ -192,7 +201,22 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 total_expected_value += expected_value
             if num_actions == 0:
                 return 0
-            return float(total_expected_value) / float(num_actions)
+            return (total_expected_value+0.0) / (num_actions+0.0)
+
+        def newUtil(gameState):
+            position = gameState.getPacmanPosition()
+            foods = gameState.getFood().asList()
+            closestFoodDis = float('inf')
+            if foods:
+                for food in foods:
+                    distance = manhattanDistance(position, food)
+                    if distance < closestFoodDis:
+                        closestFoodDis = distance
+            else:
+                closestFoodDis = 0.5
+            score = gameState.getScore()
+            evaluation = 1.0 / closestFoodDis + score
+            return evaluation
 
         # Determine the action that maximizes the expected utility for Pacman at the root level
         actions = gameState.getLegalActions(0)
@@ -208,7 +232,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 current_score = score
         return best_action
 
-
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState: GameState):
@@ -219,12 +242,6 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: Similar idea to phase 1 where manhattan distance is used as the heuristic for picking the closest food for the pacman to eat
     """
     "*** YOUR CODE HERE ***"
-    position = currentGameState.getPacmanPosition()
-    foods = currentGameState.getFood().asList()
-    closestFoodDis = min(manhattanDistance(position, food) for food in foods) if foods else 0.5
-    score = currentGameState.getScore()
-    evaluation = 1.0 / closestFoodDis + score
-    return evaluation
     util.raiseNotDefined()
 
 # Abbreviation
