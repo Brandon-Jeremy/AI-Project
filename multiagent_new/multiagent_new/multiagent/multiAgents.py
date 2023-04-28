@@ -163,13 +163,47 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+
+        # mby these could be useful for new custom eval? 
+        # successorGameState = currentGameState.generatePacmanSuccessor(action)
+        # newPos = successorGameState.getPacmanPosition()
+        # newFood = successorGameState.getFood()
+        # newGhostStates = successorGameState.getGhostStates()
+        # newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+        def newUtil(gameState):
+            position = gameState.getPacmanPosition()
+            pellets = gameState.getFood().asList()
+
+            nearestScaredGhost = float('inf')
+            nearestPellet = float('inf')
+            if pellets:
+                for pellet in pellets:
+                    distance = manhattanDistance(position, pellet)
+                    if distance < nearestPellet:
+                        nearestPellet = distance
+            # for nst in newScaredTimes:
+            #     if(nst>0):
+            #         #ghost is scared here
+            #         nearestScaredGhost=min(nearestScaredGhost,nst)
+
+
+            score = gameState.getScore()
+
+            # foodVal = 10
+            # scaredval = 20 #test case vals
+            #use new scared time here maybe to compute eval to chase ghost
+            evaluation = 1.0 / nearestPellet + score
+            #customeval with weights on remaining ghosts did not work, aim was to get pacman to chase ghosts when they are scared
+            return evaluation
+
         # Determine the action that maximizes the expected utility for Pacman
         def max_utility(gameState, depth):
             if gameState.isWin():
                 return newUtil(gameState)
             if gameState.isLose():
                 return newUtil(gameState)
-            if (depth+1) == self.depth:
+            if (depth+1) == self.depth: #testing needs to be done with different values. 3 is very slow, might be worse in the lab
                 return newUtil(gameState)
             #These conditions are used to check if the game is in its final stage 
             #The game can conlcude in 3 different ways, either winning, losing or when the depth 
@@ -180,9 +214,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             #List of pacman actions stored to loop through and check which would yield a better outcome
             for action in pacman_actions:
                 successor_state = gameState.generateSuccessor(0, action)
-                expected_value = min_utility(successor_state, depth+1, 1)
+                current_expectation = min_utility(successor_state, depth+1, 1)
                 # Update max_value if the expected value is greater
-                max_value = max(max_value, expected_value)
+                max_value = max(max_value, current_expectation)
             return max_value
 
         # Determine the minimum expected utility for the ghosts
@@ -192,34 +226,20 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             if gameState.isLose():
                 return newUtil(gameState)
             actions = gameState.getLegalActions(agent_index)
-            total_expected_value = 0
+            max_expectation = 0
+            #try to emulate chance node here but it won't really work without having real values to comfortably assume prob for each state
             num_actions = len(actions)
             for action in actions:
                 successor_state = gameState.generateSuccessor(agent_index, action)
                 if agent_index == (gameState.getNumAgents() - 1):
-                    expected_value = max_utility(successor_state, depth)
+                    current_expectation = max_utility(successor_state, depth)
                 else:
-                    expected_value = min_utility(successor_state, depth, agent_index + 1)
-                total_expected_value += expected_value
+                    current_expectation = min_utility(successor_state, depth, agent_index + 1)
+                max_expectation += current_expectation
             if num_actions == 0:
                 return 0
-            return (total_expected_value+0.0) / (num_actions+0.0)
+            return (max_expectation+0.0) / (num_actions+0.0)
 
-        def newUtil(gameState):
-            position = gameState.getPacmanPosition()
-            pellets = gameState.getFood().asList()
-            nearestPellet = float('inf')
-            if pellets:
-                for pellet in pellets:
-                    distance = manhattanDistance(position, pellet)
-                    if distance < nearestPellet:
-                        nearestPellet = distance
-            else:
-                # Value that goes here doesn't matter
-                nearestPellet = 5
-            score = gameState.getScore()
-            evaluation = 1.0 / nearestPellet + score
-            return evaluation
 
         # Get the legal actions for the root node
         actions = gameState.getLegalActions(0)
@@ -228,20 +248,20 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         best_action = None
         best_score = float('-inf')
 
+#
         # Evaluate each action and choose the one with the highest expected utility
         for action in actions:
             # Generate the successor state for the current action
             successor_state = gameState.generateSuccessor(0, action)
-
             # Compute the expected utility of the successor state using min_utility
             score = min_utility(successor_state, 0, 1)
-
             # Update the best action and its expected utility if necessary
             if score > best_score:
                 best_action = action
                 best_score = score
 
-        # Return the best action
+        # Return the best action based off nesw&stop vals. Should be a string so if best_action fails here it cud be bc of that
+        #none val shouldn't cause an issue though
         return best_action
 
 
