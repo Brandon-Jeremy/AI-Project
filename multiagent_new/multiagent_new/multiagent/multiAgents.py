@@ -186,57 +186,24 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return max_value
 
         # Determine the minimum expected utility for the ghosts
-        # def min_utility(gameState, depth, agent_index):
-        #     if gameState.isWin():
-        #         return newUtil(gameState)
-        #     if gameState.isLose():
-        #         return newUtil(gameState)
-        #     actions = gameState.getLegalActions(agent_index)
-        #     total_expected_value = 0
-        #     num_actions = len(actions)
-        #     for action in actions:
-        #         successor_state = gameState.generateSuccessor(agent_index, action)
-        #         if agent_index == (gameState.getNumAgents() - 1):
-        #             expected_value = max_utility(successor_state, depth)
-        #         else:
-        #             expected_value = min_utility(successor_state, depth, agent_index + 1)
-        #         total_expected_value += expected_value
-        #     if num_actions == 0:
-        #         return 0
-        #     return (total_expected_value+0.0) / (num_actions+0.0)
-        def min_utility(gameState, current_depth, current_agent):
-            # Base case: check if the game has ended
-            if gameState.isWin() or gameState.isLose():
+        def min_utility(gameState, depth, agent_index):
+            if gameState.isWin():
                 return newUtil(gameState)
-            
-            # Get a list of legal actions for the current ghost agent
-            ghost_actions = gameState.getLegalActions(current_agent)
-            
-            # Initialize total_expected_value to zero and get the number of legal actions
+            if gameState.isLose():
+                return newUtil(gameState)
+            actions = gameState.getLegalActions(agent_index)
             total_expected_value = 0
-            num_actions = len(ghost_actions)
-            
-            # Loop through each action and calculate the expected utility for the successor state
-            for action in ghost_actions:
-                # Generate a successor state for the current action
-                successor_state = gameState.generateSuccessor(current_agent, action)
-                # Calculate the expected utility for the successor state recursively
-                if current_agent == gameState.getNumAgents() - 1:
-                    # If the current agent is the last ghost, calculate the maximum expected utility for Pac-Man
-                    expected_value = max_utility(successor_state, current_depth)
+            num_actions = len(actions)
+            for action in actions:
+                successor_state = gameState.generateSuccessor(agent_index, action)
+                if agent_index == (gameState.getNumAgents() - 1):
+                    expected_value = max_utility(successor_state, depth)
                 else:
-                    # Otherwise, calculate the minimum expected utility for the next ghost agent
-                    expected_value = min_utility(successor_state, current_depth, current_agent + 1)
-                # Add the expected value to the total expected value
+                    expected_value = min_utility(successor_state, depth, agent_index + 1)
                 total_expected_value += expected_value
-            
-            # If there are no legal actions, return zero
             if num_actions == 0:
                 return 0
-            
-            # Calculate and return the average expected value
-            average_expected_value = total_expected_value / num_actions
-            return average_expected_value
+            return (total_expected_value+0.0) / (num_actions+0.0)
 
         def newUtil(gameState):
             position = gameState.getPacmanPosition()
